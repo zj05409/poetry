@@ -1,0 +1,332 @@
+.fragment-tray {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-standard);
+    z-index: 10;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.tray-controls {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.shuffle-button {
+    background: var(--color-gold);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shuffle-button:hover {
+    background: var(--color-gold-hover, #daa520);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.shuffle-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 手动录入模式按钮 */
+.mode-toggle-button {
+    background: var(--color-gold);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-toggle-button:hover {
+    background: var(--color-gold-hover, #daa520);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mode-toggle-button.active {
+    background: #4CAF50;
+    /* 使用绿色表示活动状态 */
+}
+
+/* 清空按钮样式 */
+.clear-button {
+    background: #f44336;
+    /* 红色 */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clear-button:hover {
+    background: #d32f2f;
+    /* 深红色 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 手动输入容器 */
+.manual-input-container {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    gap: 10px;
+}
+
+.manual-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.manual-input:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.2);
+}
+
+.add-fragment-button {
+    background: var(--color-gold);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.add-fragment-button:hover {
+    background: var(--color-gold-hover, #daa520);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tray-container {
+    width: 100%;
+    height: calc(100% - 50px);
+    /* 默认高度 */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    gap: 15px;
+}
+
+/* 在手动模式下调整高度 */
+.manual-mode .tray-container {
+    height: calc(100% - 110px);
+    /* 手动模式高度 */
+}
+
+/* 自定义滚动条 */
+.tray-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tray-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.tray-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.fragment {
+    width: 90%;
+    padding: 15px 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    position: relative;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+    text-align: center;
+    user-select: none;
+    animation: fadeIn 0.3s ease-out;
+    animation-fill-mode: backwards;
+}
+
+/* 随机延迟进入效果 */
+.fragment:nth-child(3n) {
+    animation-delay: 0.1s;
+}
+
+.fragment:nth-child(3n+1) {
+    animation-delay: 0.2s;
+}
+
+.fragment:nth-child(3n+2) {
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+}
+
+.fragment:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+}
+
+.fragment.dragging {
+    opacity: 0.7;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fragment-content {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.fragment-source {
+    font-size: 12px;
+    color: #888;
+}
+
+/* 拖拽时的预览图像 */
+.drag-image {
+    position: absolute;
+    left: -1000px;
+    top: -1000px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* 空托盘提示 */
+.empty-tray-message {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+    .fragment-content {
+        font-size: 16px;
+    }
+
+    .fragment {
+        padding: 12px 8px;
+    }
+}
+
+/* 在FragmentTray.css中添加 */
+
+.pagination-controls {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pagination-button {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+    background: var(--color-gold);
+    color: white;
+}
+
+.pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 调整fragment-counter，使其与分页控件共存 */
+.fragment-counter {
+    height: 30px;
+}
