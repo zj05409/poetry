@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import Hammer from 'hammerjs';
 import './Canvas.css';
 import { generateRandomColors } from '../utils/colorUtils';
 import { paperTexture } from '../utils/textures';
+import backgroundImageSrc from '../assets/background.png';
 
 // 在组件外部添加 roundRect 的 polyfill
 // 如果浏览器不支持 roundRect 方法，添加一个自定义实现
@@ -392,50 +393,50 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
     const [showGrid, setShowGrid] = useState(false);
     const [showEmptyPrompt, setShowEmptyPrompt] = useState(true);
     const [isDragging, setIsDragging] = useState(false);
+    const [isDraggingOver, setIsDraggingOver] = useState(false);
 
-    // 画布尺寸比例（A4）
-    const CANVAS_RATIO = 210 / 297;
+    // 背景图片尺寸
+    const BG_WIDTH = 864;
+    const BG_HEIGHT = 1152;
+
+    // 可拖放区域尺寸
+    const DROP_AREA_WIDTH = 500;
+    const DROP_AREA_HEIGHT = 762;
+
+    // 加载背景图片
+    const [backgroundLoaded, setBackgroundLoaded] = useState(false);
+    const backgroundImage = useMemo(() => {
+        const img = new Image();
+        img.onload = () => setBackgroundLoaded(true);
+        img.src = backgroundImageSrc;
+        return img;
+    }, []);
 
     // 初始化画布尺寸
     useEffect(() => {
         const resizeCanvas = () => {
             if (containerRef.current && canvasRef.current) {
-                // 保存旧尺寸用于计算比例
-                const oldWidth = canvasRef.current.width;
-                const oldHeight = canvasRef.current.height;
-
                 const containerWidth = containerRef.current.clientWidth;
                 const containerHeight = containerRef.current.clientHeight;
 
-                // 计算新尺寸
-                let canvasWidth, canvasHeight;
+                // 保持画布尺寸与背景图片相同
+                canvasRef.current.width = BG_WIDTH;
+                canvasRef.current.height = BG_HEIGHT;
 
-                if (containerWidth / containerHeight > CANVAS_RATIO) {
-                    canvasHeight = containerHeight * 0.9;
-                    canvasWidth = canvasHeight * CANVAS_RATIO;
-                } else {
-                    canvasWidth = containerWidth * 0.9;
-                    canvasHeight = canvasWidth / CANVAS_RATIO;
-                }
+                // 计算缩放比例，使画布适应容器并保持居中
+                const scaleX = containerWidth / BG_WIDTH;
+                const scaleY = containerHeight / BG_HEIGHT;
+                const scale = Math.min(scaleX, scaleY);
 
-                // 计算缩放比例
-                const scaleX = canvasWidth / oldWidth;
-                const scaleY = canvasHeight / oldHeight;
+                // 设置画布缩放和居中
+                canvasRef.current.style.transformOrigin = 'top left';
+                canvasRef.current.style.transform = `scale(${scale})`;
+                canvasRef.current.style.left = `${(containerWidth - BG_WIDTH * scale) / 2}px`;
+                canvasRef.current.style.top = `${(containerHeight - BG_HEIGHT * scale) / 2}px`;
+                canvasRef.current.style.position = 'absolute';
 
-                // 设置新尺寸
-                canvasRef.current.width = canvasWidth;
-                canvasRef.current.height = canvasHeight;
-
-                // 调整所有碎片的位置
-                if (oldWidth > 0 && oldHeight > 0) { // 防止初始化时除以零
-                    setCanvasFragments(prev =>
-                        prev.map(fragment => ({
-                            ...fragment,
-                            x: fragment.x * scaleX,
-                            y: fragment.y * scaleY
-                        }))
-                    );
-                }
+                // 设置canvasScale用于事件处理（将客户端坐标转换为画布坐标）
+                setCanvasScale(scale);
 
                 // 重新绘制
                 drawCanvas();
@@ -467,7 +468,7 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
         drawCanvas();
         // 如果画布上有碎片，隐藏提示
         setShowEmptyPrompt(canvasFragments.length === 0);
-    }, [canvasFragments, fontSize, canvasScale]);
+    }, [canvasFragments, fontSize, canvasScale, backgroundLoaded, isDraggingOver]);
 
     // 设置触摸手势识别
     useEffect(() => {
@@ -523,21 +524,58 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
     const handleDragOver = (e) => {
         e.preventDefault();
         setShowGrid(true);
+        setIsDraggingOver(true);
+
+        // 获取鼠标在画布上的坐标
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / canvasScale;
+        const y = (e.clientY - rect.top) / canvasScale;
+
+        // 检查是否在可拖放区域内
+        const centerX = BG_WIDTH / 2;
+        const centerY = BG_HEIGHT / 2;
+        const isInDropArea =
+            x >= centerX - DROP_AREA_WIDTH / 2 &&
+            x <= centerX + DROP_AREA_WIDTH / 2 &&
+            y >= centerY - DROP_AREA_HEIGHT / 2 &&
+            y <= centerY + DROP_AREA_HEIGHT / 2;
+
+        // 根据是否在可拖放区域内设置不同的cursor
+        canvasRef.current.style.cursor = isInDropArea ? 'copy' : 'not-allowed';
     };
 
     const handleDragLeave = () => {
         setShowGrid(false);
+        setIsDraggingOver(false);
+        canvasRef.current.style.cursor = 'default';
     };
 
     const handleDrop = (e) => {
         e.preventDefault();
         setShowGrid(false);
+        setIsDraggingOver(false);
+        canvasRef.current.style.cursor = 'default';
+
+        // 获取鼠标在画布上的坐标
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / canvasScale;
+        const y = (e.clientY - rect.top) / canvasScale;
+
+        // 检查是否在可拖放区域内
+        const centerX = BG_WIDTH / 2;
+        const centerY = BG_HEIGHT / 2;
+        const isInDropArea =
+            x >= centerX - DROP_AREA_WIDTH / 2 &&
+            x <= centerX + DROP_AREA_WIDTH / 2 &&
+            y >= centerY - DROP_AREA_HEIGHT / 2 &&
+            y <= centerY + DROP_AREA_HEIGHT / 2;
+
+        if (!isInDropArea) {
+            return; // 如果不在可拖放区域内，则不处理
+        }
 
         try {
             const fragment = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const rect = canvasRef.current.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
 
             // 生成随机颜色和字体样式
             const randomStyles = generateRandomColors();
@@ -724,9 +762,12 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
 
     // 点击画布碎片
     const handleCanvasClick = (e) => {
+        if (!canvasRef.current) return;
+
+        // 获取鼠标在画布上的位置
         const rect = canvasRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = (e.clientX - rect.left) / canvasScale;
+        const y = (e.clientY - rect.top) / canvasScale;
 
         // 反向遍历，以便先检测具有较高z-index的元素
         for (let i = canvasFragments.length - 1; i >= 0; i--) {
@@ -759,28 +800,32 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
         setSelectedFragment(null);
     };
 
-    // 开始拖动画布上的碎片
+    // 处理拖动开始
     const handleStartDrag = (e) => {
-        if (!selectedFragment) return;
+        if (!canvasRef.current || !selectedFragment) return;
+
+        // 获取鼠标在画布上的位置
+        const rect = canvasRef.current.getBoundingClientRect();
+        const startX = (e.clientX - rect.left) / canvasScale;
+        const startY = (e.clientY - rect.top) / canvasScale;
 
         setIsDragging(true);
-        const rect = canvasRef.current.getBoundingClientRect();
-        const startX = e.clientX - rect.left;
-        const startY = e.clientY - rect.top;
 
         // 计算鼠标与碎片中心的偏移
         const offsetX = startX - selectedFragment.x;
         const offsetY = startY - selectedFragment.y;
 
+        // 移动处理
         const handleMouseMove = (moveEvent) => {
-            const newX = moveEvent.clientX - rect.left - offsetX;
-            const newY = moveEvent.clientY - rect.top - offsetY;
+            const rect = canvasRef.current.getBoundingClientRect();
+            const x = (moveEvent.clientX - rect.left) / canvasScale;
+            const y = (moveEvent.clientY - rect.top) / canvasScale;
 
             // 更新碎片位置
             setCanvasFragments(prev =>
                 prev.map(f =>
                     f.id === selectedFragment.id
-                        ? { ...f, x: newX, y: newY }
+                        ? { ...f, x: x - offsetX, y: y - offsetY }
                         : f
                 )
             );
@@ -830,6 +875,31 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
 
         // 清除画布
         ctx.clearRect(0, 0, width, height);
+
+        // 绘制背景图片(如果已加载)
+        if (backgroundLoaded) {
+            ctx.drawImage(backgroundImage, 0, 0, width, height);
+        }
+
+        // 如果正在拖动，绘制可拖放区域虚线框
+        if (isDraggingOver) {
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.lineWidth = 2;
+
+            // 绘制中心区域的虚线框
+            const centerX = width / 2;
+            const centerY = height / 2;
+            ctx.beginPath();
+            ctx.rect(
+                centerX - DROP_AREA_WIDTH / 2,
+                centerY - DROP_AREA_HEIGHT / 2,
+                DROP_AREA_WIDTH,
+                DROP_AREA_HEIGHT
+            );
+            ctx.stroke();
+            ctx.setLineDash([]); // 重置虚线样式
+        }
 
         // 绘制网格（如果启用）
         if (showGrid) {
@@ -1287,6 +1357,13 @@ const Canvas = ({ selectedFragment, setSelectedFragment, fontSize }) => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [selectedFragment]);
+
+    useEffect(() => {
+        // 监听背景图片是否加载完成，加载完成后重绘画布
+        if (backgroundLoaded) {
+            drawCanvas();
+        }
+    }, [backgroundLoaded]);
 
     return (
         <div
