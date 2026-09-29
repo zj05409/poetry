@@ -31,6 +31,10 @@ npm run lint       # ESLint
 纯静态站点：把 `build/` 目录放到任意静态托管（Vercel / Netlify / GitHub Pages / Nginx）即可。
 使用相对路径 + HashRouter，因此无需配置 SPA 回退，也可部署在子目录下。
 
+仓库已配置 GitHub Pages 自动部署（`.github/workflows/deploy.yml`）：推送到 `master` 即发布。
+首次使用需在仓库 Settings → Pages 中把 Source 设为 **GitHub Actions**。
+在线地址：https://zj05409.github.io/poetry/
+
 ## 使用提示
 
 - 拖拽或双击右侧碎片放到画布；点击碎片选中并拖动
