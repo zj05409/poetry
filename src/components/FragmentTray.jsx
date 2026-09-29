@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './FragmentTray.css';
+import { newId } from '../utils/storage';
 
 const FragmentTray = ({ fragments, onSelectFragment }) => {
     const [displayedFragments, setDisplayedFragments] = useState([]);
@@ -102,8 +103,8 @@ const FragmentTray = ({ fragments, onSelectFragment }) => {
         // 如果包含空格，按空格分割成多个碎片
         const texts = manualInput.trim().split(/\s+/);
 
-        const newFragments = texts.map((text, index) => ({
-            id: `manual-${Date.now()}-${index}`,
+        const newFragments = texts.map((text) => ({
+            id: newId('manual'),
             text: text,
             source: '手动录入'
         }));

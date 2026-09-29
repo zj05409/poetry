@@ -91,14 +91,22 @@
 /* 背景样式 */
 .background-paper {
     background-color: var(--color-paper);
-    background-image: url('./assets/paper-texture.png');
-    background-blend-mode: multiply;
+    /* 宣纸：细密纤维斑点 + 柔和暗角 */
+    background-image:
+        radial-gradient(ellipse at center, transparent 60%, rgba(120, 90, 40, 0.12) 100%),
+        repeating-linear-gradient(45deg, rgba(120, 90, 40, 0.025) 0 1px, transparent 1px 4px),
+        radial-gradient(rgba(120, 90, 40, 0.08) 0.6px, transparent 0.8px);
+    background-size: auto, auto, 7px 7px;
 }
 
 .background-ink {
     background-color: #f0f0f0;
-    background-image: url('./assets/ink-texture.png');
-    background-blend-mode: multiply;
+    /* 水墨：淡墨晕染 */
+    background-image:
+        radial-gradient(ellipse at 20% 15%, rgba(0, 0, 0, 0.10), transparent 45%),
+        radial-gradient(ellipse at 85% 80%, rgba(0, 0, 0, 0.14), transparent 50%),
+        radial-gradient(rgba(0, 0, 0, 0.05) 0.6px, transparent 0.9px);
+    background-size: auto, auto, 6px 6px;
 }
 
 .background-plain {

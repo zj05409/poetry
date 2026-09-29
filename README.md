@@ -15,84 +15,39 @@
 
 ## 快速开始
 
-1. 克隆仓库
 ```
 git clone https://github.com/zj05409/poetry.git
 cd poetry
-```
-
-2. 安装依赖
-```
 npm install
+npm start          # 开发服务器（Vite）
+npm run build      # 生产构建，产物在 build/
+npm run preview    # 本地预览生产构建
+npm test           # 单元测试（Vitest）
+npm run lint       # ESLint
 ```
 
-3. 启动开发服务器
-```
-npm start
-```
+## 部署
 
-4. 构建生产版本
-```
-npm run build
-```
+纯静态站点：把 `build/` 目录放到任意静态托管（Vercel / Netlify / GitHub Pages / Nginx）即可。
+使用相对路径 + HashRouter，因此无需配置 SPA 回退，也可部署在子目录下。
+
+## 使用提示
+
+- 拖拽或双击右侧碎片放到画布；点击碎片选中并拖动
+- 缩放 / 旋转：触屏双指；桌面滚轮缩放，Shift+滚轮旋转；方向键微调，Delete 删除
+- 创作内容自动保存在浏览器本地，刷新不丢；"导出"可下载 2 倍分辨率 PNG
 
 ## 技术栈
 
-- React.js - 用户界面框架
-- React Router - 页面路由
-- HTML5 Canvas - 画布实现
-- Hammer.js - 多点触控手势识别
-- CSS3 动画 - 界面过渡效果
+React 18 · Vite · React Router（HashRouter） · Canvas 2D · Hammer.js · Vitest
 
 ## 项目结构
 
 ```
 src/
-  ├── components/     # 组件目录
-  │   ├── ToolBar.js      # 左侧工具栏
-  │   ├── Canvas.js       # 中央画布区
-  │   ├── FragmentTray.js # 右侧碎片托盘
-  │   └── TutorialOverlay.js # 新手教程
-  ├── utils/          # 工具函数
-  │   ├── fragmentData.js  # 预设碎片数据
-  │   └── colorUtils.js    # 颜色生成工具
-  ├── contexts/       # React上下文
-  │   └── CanvasContext.js # 画布状态管理
-  ├── assets/         # 静态资源
-  ├── App.js          # 主应用组件
-  └── index.js        # 入口文件
+  components/   Canvas / ToolBar / FragmentTray / TutorialOverlay / BackgroundTester(仅开发环境)
+  contexts/     CanvasContext：碎片与选中状态的唯一来源，含自动保存
+  hooks/        useCanvasSurface（自适应 + 高清屏）、useGestures（缩放/旋转/滚轮）
+  utils/        fragmentRenderer（sprite 缓存 + 场景绘制 + 导出）、fragmentShape、
+                geometry、storage、colorUtils、paperBackground ……
 ```
-
-## 设计说明
-
-- **色彩系统**：以鎏金色(#FFD700)和宣纸白(#F5F5DC)为主色调
-- **响应式布局**：优先适配移动端竖屏，自适应不同屏幕尺寸
-- **性能优化**：碎片预加载和渲染分级设计，保证流畅体验
-- **随机变形**：每个碎片的四条边会随机应用不同的变形效果，使外观更加生动自然
-
-## 使用方法
-
-1. **碎片选择**：从右侧托盘拖拽诗词碎片到画布，或双击碎片快速添加
-2. **手动录入**：点击"手动录入"按钮，输入自定义碎片文字
-3. **碎片编辑**：点击选中碎片后可拖动调整位置，使用键盘方向键微调
-4. **背景切换**：点击左侧工具栏的"背景"按钮切换不同风格
-5. **字体大小**：点击左侧工具栏的"字号"按钮在大小字体间切换
-
-## 路线图
-
-- [ ] 社区分享功能
-- [ ] 更多碎片素材库
-- [ ] 个性化主题订阅
-- [ ] 作品导出为图片
-
-## 贡献指南
-
-欢迎提交issue和PR，共同改进这个创意项目！
-
-## 作者
-
-[@zj05409](https://github.com/zj05409)
-
-## 许可证
-
-MIT 
