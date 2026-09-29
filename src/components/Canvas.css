@@ -6,17 +6,19 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
+    touch-action: none;
+    user-select: none;
 }
 
 .poetry-canvas {
     background-color: transparent;
-    transition: all 0.3s ease;
     user-select: none;
 }
 
 /* 空画布提示 */
 .empty-canvas-prompt {
     position: absolute;
+    pointer-events: none;
     color: #888;
     font-size: 18px;
     font-style: italic;

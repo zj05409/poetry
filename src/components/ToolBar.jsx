@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import './ToolBar.css';
+import { useCanvasContext } from '../contexts/CanvasContext';
 
 const ToolBar = ({ onChangeBackground, onChangeFontSize, fontSize, backgroundPattern }) => {
     const [materialMenuOpen, setMaterialMenuOpen] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState('');
+    const { fragments, saveNow, saveStatus, exporterRef } = useCanvasContext();
 
     // 切换素材菜单显示状态
     const toggleMaterialMenu = () => {
@@ -27,25 +29,32 @@ const ToolBar = ({ onChangeBackground, onChangeFontSize, fontSize, backgroundPat
         alert('上传素材功能将在正式版中提供');
     };
 
-    // 保存草稿
+    // 保存草稿：立即写入本地存储（平时也会自动保存）
     const handleSaveDraft = () => {
-        // 模拟保存过程
-        const savingIndicator = document.querySelector('.saving-indicator');
-        savingIndicator.classList.add('saving');
-
-        setTimeout(() => {
-            savingIndicator.classList.remove('saving');
-            savingIndicator.classList.add('saved');
-
-            setTimeout(() => {
-                savingIndicator.classList.remove('saved');
-            }, 1500);
-        }, 1000);
+        if (!saveNow()) alert('保存失败：浏览器存储不可用或已满');
     };
 
-    // 完成创作
-    const handleFinishCreation = () => {
-        alert('恭喜！您的创作已完成，分享功能将在正式版中提供');
+    // 完成创作：导出为 PNG 图片
+    const handleFinishCreation = async () => {
+        if (fragments.length === 0) {
+            alert('画布还是空的，先拼几个碎片吧');
+            return;
+        }
+        try {
+            const blob = await exporterRef.current?.();
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `拼诗诗-${new Date().toISOString().slice(0, 10)}.png`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            console.error(error);
+            alert('导出图片失败，请重试');
+        }
     };
 
     return (
@@ -121,7 +130,7 @@ const ToolBar = ({ onChangeBackground, onChangeFontSize, fontSize, backgroundPat
                         <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" />
                     </svg>
                     <span>保存</span>
-                    <div className="saving-indicator"></div>
+                    <div className={`saving-indicator ${saveStatus === 'saved' ? 'saved' : ''}`}></div>
                 </button>
 
                 <button
@@ -131,7 +140,7 @@ const ToolBar = ({ onChangeBackground, onChangeFontSize, fontSize, backgroundPat
                     <svg viewBox="0 0 24 24" className="toolbar-icon">
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
-                    <span>完成</span>
+                    <span>导出</span>
                 </button>
             </div>
         </div>
